@@ -1,0 +1,5 @@
+<Editor>
+  <ui>
+    <stylesheet name="examples/editors/css/process.css"/>
+  </ui>
+</Editor>
