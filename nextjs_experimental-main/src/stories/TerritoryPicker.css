@@ -69,3 +69,16 @@
   border-left: 2px solid #ddd;
   margin-top: 5px;
 }
+
+.search-bar {
+  padding: 5px 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}

@@ -18,6 +18,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
   const [activeSource, setActiveSource] = useState<"A" | "B">("A");
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // State untuk search bar
 
   const toggleSelect = (id: string) => {
     setSelectedTerritories((prev) =>
@@ -27,6 +28,31 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
 
   const toggleExpand = (id: string) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  // Filter wilayah berdasarkan input search
+  const filterTerritories = (territories: Territory[]) => {
+    return territories
+      .map((territory) => ({
+        ...territory,
+        children: territory.children
+          ?.map((province) => ({
+            ...province,
+            children: province.children?.filter((city) =>
+              city.name.toLowerCase().includes(searchQuery.toLowerCase())
+            ),
+          }))
+          .filter(
+            (province) =>
+              province.children?.length ||
+              province.name.toLowerCase().includes(searchQuery.toLowerCase())
+          ),
+      }))
+      .filter(
+        (territory) =>
+          territory.children?.length ||
+          territory.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
   };
 
   return (
@@ -53,9 +79,19 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
             </button>
           </div>
 
+          {/* Search Bar */}
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Search territory..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
           {/* Wilayah */}
           <div className="territory-list">
-            {territories.map((territory) => (
+            {filterTerritories(territories).map((territory) => (
               <div key={territory.id} className="territory-item">
                 <div className="territory-header">
                   <input
