@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Header } from "./Header";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./svar-gantt.css";
 import "./svar-gantt-icons.css";
 import "wx-react-gantt/dist/gantt.css";
+import { info } from "console";
 
 type User = {
   name: string;
@@ -117,7 +120,7 @@ export const SvarGantt: React.FC<SvarGanttProps> = ({
     maxCellWidth: 350, // max width timeline
     levels: [
       {
-        minCellWidth: 180, // Level 0
+        minCellWidth: 180,
         scales: [{ unit: "year", step: 1, format: "yyyy" }],
       },
       {
@@ -158,6 +161,8 @@ export const SvarGantt: React.FC<SvarGanttProps> = ({
     });
   }, []);
 
+  {
+    /*
   useEffect(() => {
     if (ganttRef.current) {
       console.log("Gantt instance:", ganttRef.current);
@@ -182,13 +187,119 @@ export const SvarGantt: React.FC<SvarGanttProps> = ({
       console.error("ganttRef.current masih undefined!");
     }
   }, [ganttCmp]);
+  */
+  }
+
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "info" = "info"
+  ) => {
+    toast[type](message, {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+    });
+  };
+
+  const fninit = (api: any) => {
+    if (api) console.log("Gantt API founded:", api);
+
+    api.on("add-link", (data: any) => {
+      console.log("Link added via API", data);
+      showToast("New Link Added", "success");
+    });
+    api.on("add-task", (task: any) => {
+      console.log("Task added via API", task);
+      showToast(`Task Added: ${task.text || "Unknown Task"}`, "success");
+    });
+    api.on("copy-task", (task: any) => {
+      console.log("Task copied via API", task);
+      showToast(`Task Copied: ${task.text || "Unknown Task"}`, "info");
+    });
+    api.on("delete-link", (data: any) => {
+      console.log("Link deleted via API", data);
+      showToast("Link Deleted", "error");
+    });
+    api.on("delete-task", (task: any) => {
+      console.log("Task deleted via API", task);
+      showToast(`Task Deleted: ${task.text || "Unknown Task"}`, "error");
+    });
+    api.on("drag-task", (task: any) => {
+      console.log("Task dragged via API", task);
+      showToast(`Task Dragged: ${task.text || "Unknown Task"}`, "success");
+    });
+    api.on("expand-scale", (scale: any) => {
+      console.log("Scale expanded via API", scale);
+      showToast(`Scale Expanded: ${scale.format}`, "info");
+    });
+    api.on("indent-task", (task: any) => {
+      console.log("Task indented via API", task);
+      showToast(`Task Indented: ${task.text || "Unknown Task"}`, "success");
+    });
+    api.on("move-task", (task: any) => {
+      console.log("Task moved via API", task);
+      showToast(`Task Moved: ${task.text || "Unknown Task"}`, "success");
+    });
+    api.on("open-task", (task: any) => {
+      console.log("Task opened via API", task);
+      showToast(`Task Opened: ${task.text || "Unknown Task"}`, "info");
+    });
+    api.on("provide-data", (data: any) => {
+      console.log("Data provided via API", data);
+      showToast("Data Provided", "info");
+    });
+    api.on("request-data", (data: any) => {
+      console.log("Data requested via API", data);
+      showToast("Data Requested", "info");
+    });
+    api.on("render-data", (data: any) => {
+      console.log("Data rendered via API", data);
+      showToast("Data Rendered", "info");
+    });
+    api.on("scroll-chart", (data: any) => {
+      console.log("Chart scrolled via API", data);
+      showToast("Chart Scrolled", "info");
+    });
+    api.on("select-task", (task: any) => {
+      console.log("Task selected via API", task);
+      showToast(`Task Selected: ${task.text || "Unknown Task"}`, "info");
+    });
+    api.on("show-editor", (data: any) => {
+      console.log("Editor shown via API", data);
+      showToast("Editor Shown", "info");
+    });
+    api.on("sort-tasks", (data: any) => {
+      console.log("Tasks sorted via API", data);
+      showToast("Tasks Sorted", "info");
+    });
+    api.on("update-link", (data: any) => {
+      console.log("Link updated via API", data);
+      showToast("Link Updated", "success");
+    });
+    api.on("update-task", (task: any) => {
+      console.log("Task updated via API", task);
+      showToast(`Task Updated: ${task.text || "Unknown Task"}`, "success");
+    });
+    api.on("zoom-scale", (zoomLevel: any) => {
+      console.log("Zoom scale changed via API", zoomLevel);
+      showToast(`Zoom Scale Changed: ${zoomLevel}`, "info");
+    });
+  };
 
   return (
     <article>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        aria-label="toast"
+        style={{ position: "fixed", bottom: "1rem", right: "1rem" }}
+      />
       {ganttCmp ? (
         <ganttCmp.Willow>
           <ganttCmp.Gantt
-            ref={ganttRef}
+            init={(api: any) => fninit(api)}
             tasks={tasks}
             links={links}
             scales={scales}

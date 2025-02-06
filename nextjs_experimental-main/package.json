@@ -25,7 +25,7 @@
     "quill-better-table": "^1.2.10",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "wx-react-gantt": "^1.3.0"
+    "wx-react-gantt": "latest"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.3",
