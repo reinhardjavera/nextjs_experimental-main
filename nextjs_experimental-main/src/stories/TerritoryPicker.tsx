@@ -106,18 +106,20 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
             {filterTerritories(territories).map((territory) => (
               <div key={territory.id} className="territory-item">
                 <div className="territory-header">
-                  <input
-                    type="checkbox"
-                    id={`checkbox-${territory.id}`}
-                    checked={selectedTerritories.includes(territory.id)}
-                    onChange={() => toggleSelect(territory.id)}
-                  />
-                  <label
-                    htmlFor={`checkbox-${territory.id}`}
-                    className="territory-label"
-                  >
-                    {territory.name}
-                  </label>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <input
+                      type="checkbox"
+                      id={`checkbox-${territory.id}`}
+                      checked={selectedTerritories.includes(territory.id)}
+                      onChange={() => toggleSelect(territory.id)}
+                    />
+                    <label
+                      htmlFor={`checkbox-${territory.id}`}
+                      className="territory-label"
+                    >
+                      {territory.name}
+                    </label>
+                  </div>
                   {territory.children && (
                     <span
                       className="expand-icon"
