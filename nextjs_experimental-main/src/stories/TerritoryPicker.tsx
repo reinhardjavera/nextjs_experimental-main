@@ -18,33 +18,33 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
   const [activeSource, setActiveSource] = useState<"A" | "B">("A");
   const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // State untuk search bar
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const toggleSelect = (id: string, level: number) => {
+  const toggleSelect = (id: string) => {
+    const level = getLevel(id); // buat dapetin level of the current id
     setSelectedTerritories((prev) => {
       const selectedInSameLevel = prev.filter((tid) => getLevel(tid) === level);
       const isSelected = selectedInSameLevel.includes(id);
 
       if (isSelected) {
-        return selectedInSameLevel.filter((tid) => tid !== id); // Unselect if already selected
+        return selectedInSameLevel.filter((tid) => tid !== id);
       } else {
-        return [...selectedInSameLevel, id]; // Add to selection if not selected
+        return [...selectedInSameLevel, id];
       }
     });
   };
 
-  // Helper function to get level of a territory
+  // determine level of territory
   const getLevel = (id: string): number => {
     if (id === "nationalwide") return 1; // Level 1
     if (["gorontalo", "sulawesi-selatan"].includes(id)) return 2; // Level 2
-    return 3; // Assume others are Level 3
+    return 3; // Level 3
   };
 
   const toggleExpand = (id: string) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Filter wilayah berdasarkan input search
   const filterTerritories = (territories: Territory[]) => {
     return territories
       .map((territory) => ({
@@ -52,24 +52,20 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
         children: territory.children
           ?.map((province) => ({
             ...province,
-            children: province.children?.filter(
-              (city) =>
-                city?.name &&
-                city.name.toLowerCase().includes(searchQuery.toLowerCase())
+            children: province.children?.filter((city) =>
+              city.name.toLowerCase().includes(searchQuery.toLowerCase())
             ),
           }))
           .filter(
             (province) =>
               province.children?.length ||
-              (province.name &&
-                province.name.toLowerCase().includes(searchQuery.toLowerCase()))
+              province.name.toLowerCase().includes(searchQuery.toLowerCase())
           ),
       }))
       .filter(
         (territory) =>
           territory.children?.length ||
-          (territory.name &&
-            territory.name.toLowerCase().includes(searchQuery.toLowerCase()))
+          territory.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
   };
 
@@ -81,7 +77,6 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
 
       {isOpen && (
         <div className="territory-dropdown">
-          {/* Tabs Source A & B */}
           <div className="source-tabs">
             <button
               className={activeSource === "A" ? "active" : ""}
@@ -97,7 +92,6 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
             </button>
           </div>
 
-          {/* Search Bar */}
           <div className="search-bar">
             <input
               type="text"
@@ -116,19 +110,25 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                     type="checkbox"
                     id={`checkbox-${territory.id}`}
                     checked={selectedTerritories.includes(territory.id)}
-                    onChange={() => toggleSelect(territory.id, 1)}
+                    onChange={() => toggleSelect(territory.id)}
                   />
                   <label
                     htmlFor={`checkbox-${territory.id}`}
-                    onClick={() => toggleExpand(territory.id)}
                     className="territory-label"
                   >
-                    {territory.name}{" "}
-                    {territory.children && (expanded[territory.id] ? "▲" : "▼")}
+                    {territory.name}
                   </label>
+                  {territory.children && (
+                    <span
+                      className="expand-icon"
+                      onClick={() => toggleExpand(territory.id)}
+                    >
+                      {expanded[territory.id] ? "▲" : "▼"}
+                    </span>
+                  )}
                 </div>
 
-                {/* provinsi*/}
+                {/* Provinsi */}
                 {territory.children && expanded[territory.id] && (
                   <div className="territory-sublist">
                     {territory.children.map((province) => (
@@ -136,17 +136,27 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                         <div className="territory-header">
                           <input
                             type="checkbox"
+                            id={`checkbox-${province.id}`}
                             checked={selectedTerritories.includes(province.id)}
-                            onChange={() => toggleSelect(province.id, 2)}
+                            onChange={() => toggleSelect(province.id)}
                           />
-                          <span onClick={() => toggleExpand(province.id)}>
-                            {province.name}{" "}
-                            {province.children &&
-                              (expanded[province.id] ? "▲" : "▼")}
-                          </span>
+                          <label
+                            htmlFor={`checkbox-${province.id}`}
+                            className="territory-label"
+                          >
+                            {province.name}
+                          </label>
+                          {province.children && (
+                            <span
+                              className="expand-icon"
+                              onClick={() => toggleExpand(province.id)}
+                            >
+                              {expanded[province.id] ? "▲" : "▼"}
+                            </span>
+                          )}
                         </div>
 
-                        {/* sub kota dalam provinsi*/}
+                        {/* Kota */}
                         {province.children && expanded[province.id] && (
                           <div className="territory-sublist">
                             {province.children.map((city) => (
@@ -154,12 +164,18 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                                 <div className="territory-header">
                                   <input
                                     type="checkbox"
+                                    id={`checkbox-${city.id}`}
                                     checked={selectedTerritories.includes(
                                       city.id
                                     )}
-                                    onChange={() => toggleSelect(city.id, 3)}
+                                    onChange={() => toggleSelect(city.id)}
                                   />
-                                  {city.name}
+                                  <label
+                                    htmlFor={`checkbox-${city.id}`}
+                                    className="territory-label"
+                                  >
+                                    {city.name}
+                                  </label>
                                 </div>
                               </div>
                             ))}
