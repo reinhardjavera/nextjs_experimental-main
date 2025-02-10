@@ -24,6 +24,12 @@
   padding: 10px;
   z-index: 10;
 }
+.territory-label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
 
 /* Styling untuk tabs Source A dan B */
 .source-tabs {
