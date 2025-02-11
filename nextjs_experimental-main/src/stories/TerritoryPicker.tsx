@@ -3,7 +3,7 @@ import "./TerritoryPicker.css";
 
 interface Territory {
   id: string;
-  name: string;
+  territory: string; // Mengganti dari `name` ke `territory`
   children?: Territory[];
 }
 
@@ -34,11 +34,10 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
     });
   };
 
-  // determine level of territory
   const getLevel = (id: string): number => {
-    if (id === "nationalwide") return 1; // Level 1
-    if (["gorontalo", "sulawesi-selatan"].includes(id)) return 2; // Level 2
-    return 3; // Level 3
+    if (id === "nationalwide") return 1;
+    if (["gorontalo", "sulawesi-selatan"].includes(id)) return 2;
+    return 3;
   };
 
   const toggleExpand = (id: string) => {
@@ -53,19 +52,21 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
           ?.map((province) => ({
             ...province,
             children: province.children?.filter((city) =>
-              city.name.toLowerCase().includes(searchQuery.toLowerCase())
+              city.territory.toLowerCase().includes(searchQuery.toLowerCase())
             ),
           }))
           .filter(
             (province) =>
               province.children?.length ||
-              province.name.toLowerCase().includes(searchQuery.toLowerCase())
+              province.territory
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase())
           ),
       }))
       .filter(
         (territory) =>
           territory.children?.length ||
-          territory.name.toLowerCase().includes(searchQuery.toLowerCase())
+          territory.territory.toLowerCase().includes(searchQuery.toLowerCase())
       );
   };
 
@@ -101,7 +102,6 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
             />
           </div>
 
-          {/* Wilayah */}
           <div className="territory-list">
             {filterTerritories(territories).map((territory) => (
               <div key={territory.id} className="territory-item">
@@ -117,7 +117,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                       htmlFor={`checkbox-${territory.id}`}
                       className="territory-label"
                     >
-                      {territory.name}
+                      {territory.territory}
                     </label>
                   </div>
                   {territory.children && (
@@ -130,7 +130,6 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                   )}
                 </div>
 
-                {/* Provinsi */}
                 {territory.children && expanded[territory.id] && (
                   <div className="territory-sublist">
                     {territory.children.map((province) => (
@@ -146,7 +145,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                             htmlFor={`checkbox-${province.id}`}
                             className="territory-label"
                           >
-                            {province.name}
+                            {province.territory}
                           </label>
                           {province.children && (
                             <span
@@ -158,7 +157,6 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                           )}
                         </div>
 
-                        {/* Kota */}
                         {province.children && expanded[province.id] && (
                           <div className="territory-sublist">
                             {province.children.map((city) => (
@@ -176,7 +174,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                                     htmlFor={`checkbox-${city.id}`}
                                     className="territory-label"
                                   >
-                                    {city.name}
+                                    {city.territory}
                                   </label>
                                 </div>
                               </div>
