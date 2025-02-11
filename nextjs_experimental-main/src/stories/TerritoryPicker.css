@@ -82,7 +82,7 @@
 }
 
 .search-bar {
-  padding: 5px 10px;
+  padding-bottom: 20px;
   border-bottom: 1px solid #ddd;
 }
 
@@ -92,4 +92,17 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
+}
+
+.preset-button {
+  background: darkgrey;
+  color: black;
+  font-weight: 400;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  width: 100%;
+  text-align: center;
 }

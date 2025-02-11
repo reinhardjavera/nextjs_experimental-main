@@ -70,6 +70,42 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
       );
   };
 
+  // Fungsi untuk memilih semua wilayah Gorontalo
+  const selectGorontaloTerritories = () => {
+    const nationalwide = territories.find((t) => t.id === "nationalwide");
+
+    if (nationalwide) {
+      const gorontaloNode = nationalwide.children?.find(
+        (child) => child.id === "gorontalo"
+      );
+
+      if (gorontaloNode?.children) {
+        const gorontaloTerritories = gorontaloNode.children.map(
+          (child) => child.id
+        );
+        setSelectedTerritories(gorontaloTerritories);
+      }
+    }
+  };
+
+  // Fungsi untuk memilih semua wilayah Sulawesi Selatan
+  const selectSulawesiSelatanTerritories = () => {
+    const nationalwide = territories.find((t) => t.id === "nationalwide");
+
+    if (nationalwide) {
+      const sulawesiSelatanNode = nationalwide.children?.find(
+        (child) => child.id === "sulawesi-selatan"
+      );
+
+      if (sulawesiSelatanNode?.children) {
+        const sulawesiSelatanTerritories = sulawesiSelatanNode.children.map(
+          (child) => child.id
+        );
+        setSelectedTerritories(sulawesiSelatanTerritories);
+      }
+    }
+  };
+
   return (
     <div className="territory-picker">
       <button onClick={() => setIsOpen(!isOpen)} className="territory-button">
@@ -101,6 +137,20 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+
+          <button
+            className="preset-button"
+            onClick={selectGorontaloTerritories}
+          >
+            Select Gorontalo
+          </button>
+
+          <button
+            className="preset-button"
+            onClick={selectSulawesiSelatanTerritories}
+          >
+            Select Sulawesi Selatan
+          </button>
 
           <div className="territory-list">
             {filterTerritories(territories).map((territory) => (
