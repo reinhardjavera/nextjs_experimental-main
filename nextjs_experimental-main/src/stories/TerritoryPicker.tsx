@@ -3,7 +3,7 @@ import "./TerritoryPicker.css";
 
 interface Territory {
   id: string;
-  territory: string; // Mengganti dari `name` ke `territory`
+  territory: string;
   children?: Territory[];
 }
 
@@ -21,7 +21,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
 
   const toggleSelect = (id: string) => {
-    const level = getLevel(id); // buat dapetin level of the current id
+    const level = getLevel(id);
     setSelectedTerritories((prev) => {
       const selectedInSameLevel = prev.filter((tid) => getLevel(tid) === level);
       const isSelected = selectedInSameLevel.includes(id);
@@ -35,8 +35,8 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
   };
 
   const getLevel = (id: string): number => {
-    if (id === "nationalwide") return 1;
-    if (["gorontalo", "sulawesi-selatan"].includes(id)) return 2;
+    if (id === "Nationalwide") return 1;
+    if (["Gorontalo", "Sulawesi Selatan"].includes(id)) return 2;
     return 3;
   };
 
@@ -70,15 +70,12 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
       );
   };
 
-  // Fungsi untuk memilih semua wilayah Gorontalo
   const selectGorontaloTerritories = () => {
-    const nationalwide = territories.find((t) => t.id === "nationalwide");
-
+    const nationalwide = territories.find((t) => t.id === "Nationalwide");
     if (nationalwide) {
       const gorontaloNode = nationalwide.children?.find(
-        (child) => child.id === "gorontalo"
+        (child) => child.id === "Gorontalo"
       );
-
       if (gorontaloNode?.children) {
         const gorontaloTerritories = gorontaloNode.children.map(
           (child) => child.id
@@ -88,15 +85,12 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
     }
   };
 
-  // Fungsi untuk memilih semua wilayah Sulawesi Selatan
   const selectSulawesiSelatanTerritories = () => {
-    const nationalwide = territories.find((t) => t.id === "nationalwide");
-
+    const nationalwide = territories.find((t) => t.id === "Nationalwide");
     if (nationalwide) {
       const sulawesiSelatanNode = nationalwide.children?.find(
-        (child) => child.id === "sulawesi-selatan"
+        (child) => child.id === "Sulawesi Selatan"
       );
-
       if (sulawesiSelatanNode?.children) {
         const sulawesiSelatanTerritories = sulawesiSelatanNode.children.map(
           (child) => child.id
@@ -113,130 +107,135 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
       </button>
 
       {isOpen && (
-        <div className="territory-dropdown">
-          <div className="source-tabs">
-            <button
-              className={activeSource === "A" ? "active" : ""}
-              onClick={() => setActiveSource("A")}
-            >
-              Source A
-            </button>
-            <button
-              className={activeSource === "B" ? "active" : ""}
-              onClick={() => setActiveSource("B")}
-            >
-              Source B
-            </button>
-          </div>
+        <div className="territory-dropdown-container">
+          <div className="territory-dropdown">
+            <div className="source-tabs">
+              <button
+                className={activeSource === "A" ? "active" : ""}
+                onClick={() => setActiveSource("A")}
+              >
+                Source A
+              </button>
+              <button
+                className={activeSource === "B" ? "active" : ""}
+                onClick={() => setActiveSource("B")}
+              >
+                Source B
+              </button>
+            </div>
 
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search territory..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder="Search territory..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
 
-          <button
-            className="preset-button"
-            onClick={selectGorontaloTerritories}
-          >
-            Select Gorontalo
-          </button>
-
-          <button
-            className="preset-button"
-            onClick={selectSulawesiSelatanTerritories}
-          >
-            Select Sulawesi Selatan
-          </button>
-
-          <div className="territory-list">
-            {filterTerritories(territories).map((territory) => (
-              <div key={territory.id} className="territory-item">
-                <div className="territory-header">
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <input
-                      type="checkbox"
-                      id={`checkbox-${territory.id}`}
-                      checked={selectedTerritories.includes(territory.id)}
-                      onChange={() => toggleSelect(territory.id)}
-                    />
-                    <label
-                      htmlFor={`checkbox-${territory.id}`}
-                      className="territory-label"
-                    >
-                      {territory.territory}
-                    </label>
+            <div className="territory-list">
+              {filterTerritories(territories).map((territory) => (
+                <div key={territory.id} className="territory-item">
+                  <div className="territory-header">
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <input
+                        type="checkbox"
+                        id={`checkbox-${territory.id}`}
+                        checked={selectedTerritories.includes(territory.id)}
+                        onChange={() => toggleSelect(territory.id)}
+                      />
+                      <label
+                        htmlFor={`checkbox-${territory.id}`}
+                        className="territory-label"
+                      >
+                        {territory.territory}
+                      </label>
+                    </div>
+                    {territory.children && (
+                      <span
+                        className="expand-icon"
+                        onClick={() => toggleExpand(territory.id)}
+                      >
+                        {expanded[territory.id] ? "▲" : "▼"}
+                      </span>
+                    )}
                   </div>
-                  {territory.children && (
-                    <span
-                      className="expand-icon"
-                      onClick={() => toggleExpand(territory.id)}
-                    >
-                      {expanded[territory.id] ? "▲" : "▼"}
-                    </span>
-                  )}
-                </div>
 
-                {territory.children && expanded[territory.id] && (
-                  <div className="territory-sublist">
-                    {territory.children.map((province) => (
-                      <div key={province.id} className="territory-item">
-                        <div className="territory-header">
-                          <input
-                            type="checkbox"
-                            id={`checkbox-${province.id}`}
-                            checked={selectedTerritories.includes(province.id)}
-                            onChange={() => toggleSelect(province.id)}
-                          />
-                          <label
-                            htmlFor={`checkbox-${province.id}`}
-                            className="territory-label"
-                          >
-                            {province.territory}
-                          </label>
-                          {province.children && (
-                            <span
-                              className="expand-icon"
-                              onClick={() => toggleExpand(province.id)}
+                  {territory.children && expanded[territory.id] && (
+                    <div className="territory-sublist">
+                      {territory.children.map((province) => (
+                        <div key={province.id} className="territory-item">
+                          <div className="territory-header">
+                            <input
+                              type="checkbox"
+                              id={`checkbox-${province.id}`}
+                              checked={selectedTerritories.includes(
+                                province.id
+                              )}
+                              onChange={() => toggleSelect(province.id)}
+                            />
+                            <label
+                              htmlFor={`checkbox-${province.id}`}
+                              className="territory-label"
                             >
-                              {expanded[province.id] ? "▲" : "▼"}
-                            </span>
+                              {province.territory}
+                            </label>
+                            {province.children && (
+                              <span
+                                className="expand-icon"
+                                onClick={() => toggleExpand(province.id)}
+                              >
+                                {expanded[province.id] ? "▲" : "▼"}
+                              </span>
+                            )}
+                          </div>
+
+                          {province.children && expanded[province.id] && (
+                            <div className="territory-sublist">
+                              {province.children.map((city) => (
+                                <div key={city.id} className="territory-item">
+                                  <div className="territory-header">
+                                    <input
+                                      type="checkbox"
+                                      id={`checkbox-${city.id}`}
+                                      checked={selectedTerritories.includes(
+                                        city.id
+                                      )}
+                                      onChange={() => toggleSelect(city.id)}
+                                    />
+                                    <label
+                                      htmlFor={`checkbox-${city.id}`}
+                                      className="territory-label"
+                                    >
+                                      {city.territory}
+                                    </label>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           )}
                         </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
 
-                        {province.children && expanded[province.id] && (
-                          <div className="territory-sublist">
-                            {province.children.map((city) => (
-                              <div key={city.id} className="territory-item">
-                                <div className="territory-header">
-                                  <input
-                                    type="checkbox"
-                                    id={`checkbox-${city.id}`}
-                                    checked={selectedTerritories.includes(
-                                      city.id
-                                    )}
-                                    onChange={() => toggleSelect(city.id)}
-                                  />
-                                  <label
-                                    htmlFor={`checkbox-${city.id}`}
-                                    className="territory-label"
-                                  >
-                                    {city.territory}
-                                  </label>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+          <div className="preset-buttons-sidebar">
+            <button
+              className="preset-button"
+              onClick={selectGorontaloTerritories}
+            >
+              Select Gorontalo
+            </button>
+            <button
+              className="preset-button"
+              onClick={selectSulawesiSelatanTerritories}
+            >
+              Select Sulawesi Selatan
+            </button>
           </div>
         </div>
       )}
