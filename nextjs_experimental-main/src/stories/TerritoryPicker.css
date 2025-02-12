@@ -80,6 +80,11 @@
   font-weight: bold;
 }
 
+.source-tabs button:hover {
+  color: blue;
+  transition: 0.3s ease;
+}
+
 .source-tabs .active {
   border-bottom: 3px solid #1ea7fd;
   color: #1ea7fd;
@@ -88,6 +93,7 @@
 .search-bar {
   padding-bottom: 20px;
   border-bottom: 1px solid #ddd;
+  margin-right: 20px;
 }
 
 .search-bar input {

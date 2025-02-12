@@ -13,6 +13,19 @@ const meta: Meta<typeof TerritoryPicker> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const augmentTerritoryData = (
+  territories: any[],
+  currentLevel: number = 1
+): any[] => {
+  territories.forEach((territory) => {
+    territory.level = currentLevel; // Tambah level ke setiap node
+    if (territory.children) {
+      augmentTerritoryData(territory.children, currentLevel + 1);
+    }
+  });
+  return territories;
+};
+
 // Data provinsi & kota dipindah ke story
 const territoryData = [
   {

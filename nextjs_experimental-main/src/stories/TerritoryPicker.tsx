@@ -1,15 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./TerritoryPicker.css";
 
 interface Territory {
   id: string;
   territory: string;
+  level?: number;
   children?: Territory[];
 }
 
 interface TerritoryPickerProps {
   territories: Territory[];
 }
+
+const augmentTerritoryData = (
+  territories: Territory[],
+  currentLevel: number = 1
+): Territory[] => {
+  return territories.map((territory) => ({
+    ...territory,
+    level: currentLevel,
+    children: territory.children
+      ? augmentTerritoryData(territory.children, currentLevel + 1)
+      : undefined,
+  }));
+};
 
 export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
   territories,
@@ -19,25 +33,49 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
   const [activeSource, setActiveSource] = useState<"A" | "B">("A");
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [augmentedTerritories, setAugmentedTerritories] = useState<Territory[]>(
+    []
+  );
+
+  useEffect(() => {
+    setAugmentedTerritories(augmentTerritoryData(territories));
+  }, [territories]);
+
+  const getLevel = (territory: Territory | undefined): number => {
+    return territory?.level || 1;
+  };
+
+  const findTerritoryById = (
+    id: string,
+    territories: Territory[]
+  ): Territory | undefined => {
+    for (const territory of territories) {
+      if (territory.id === id) return territory;
+      if (territory.children) {
+        const found = findTerritoryById(id, territory.children);
+        if (found) return found;
+      }
+    }
+    return undefined;
+  };
 
   const toggleSelect = (id: string) => {
-    const level = getLevel(id);
-    setSelectedTerritories((prev) => {
-      const selectedInSameLevel = prev.filter((tid) => getLevel(tid) === level);
-      const isSelected = selectedInSameLevel.includes(id);
+    const territory = findTerritoryById(id, augmentedTerritories);
+    const level = getLevel(territory);
 
+    setSelectedTerritories((prev) => {
+      const selectedInSameLevel = prev.filter((tid) => {
+        const t = findTerritoryById(tid, augmentedTerritories);
+        return t && getLevel(t) === level;
+      });
+
+      const isSelected = selectedInSameLevel.includes(id);
       if (isSelected) {
         return selectedInSameLevel.filter((tid) => tid !== id);
       } else {
         return [...selectedInSameLevel, id];
       }
     });
-  };
-
-  const getLevel = (id: string): number => {
-    if (id === "Nationalwide") return 1;
-    if (["Gorontalo", "Sulawesi Selatan"].includes(id)) return 2;
-    return 3;
   };
 
   const toggleExpand = (id: string) => {
