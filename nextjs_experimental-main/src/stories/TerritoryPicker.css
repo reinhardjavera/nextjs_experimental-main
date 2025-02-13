@@ -1,5 +1,15 @@
+.main container {
+  display: flex;
+}
+
+.territory-pocker-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
 .territory-picker {
-  position: relative;
+  flex: 3;
   width: 400px;
 }
 
@@ -28,12 +38,21 @@
   overflow-y: auto;
 }
 
+/*
 .preset-buttons-sidebar {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding-left: 10px;
+}
+*/
+
+.preset-button-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .preset-button {
