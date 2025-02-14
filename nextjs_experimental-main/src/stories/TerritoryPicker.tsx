@@ -15,15 +15,14 @@ interface TerritoryPickerProps {
 
 const augmentTerritoryData = (
   territories: Territory[],
-  currentLevel: number = 1
+  currentLevel = 1
 ): Territory[] => {
-  if (!territories) return [];
   return territories.map((territory) => ({
     ...territory,
     level: currentLevel,
     children: territory.children
       ? augmentTerritoryData(territory.children, currentLevel + 1)
-      : undefined,
+      : [],
   }));
 };
 
@@ -53,6 +52,8 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
           console.log("API Response:", response.data); // cek isi response
 
           if (response.data && Array.isArray(response.data.tsel)) {
+            const fetchedTerritories = augmentTerritoryData(response.data.tsel);
+            /*
             const fetchedTerritories = response.data.tsel.map((item: any) => ({
               id: item.id || "",
               territory: item.territory || "",
@@ -60,6 +61,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                 ? augmentTerritoryData(item.children)
                 : undefined,
             }));
+            */
 
             setExternalTerritories(fetchedTerritories);
             setAugmentedTerritories(augmentTerritoryData(fetchedTerritories));
@@ -73,7 +75,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
     } else {
       setAugmentedTerritories(augmentTerritoryData(territories));
     }
-  }, [activeSource, territories, externalTerritories.length]);
+  }, [activeSource, territories /*externalTerritories.length*/]);
 
   const getLevel = (territory: Territory | undefined): number => {
     return territory?.level || 1;
@@ -116,7 +118,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const filterTerritories = (territories: Territory[]) => {
+  const filterTerritories = (territories: Territory[]): Territory[] => {
     if (!territories) return [];
     return territories
       .map((territory) => ({
@@ -130,7 +132,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
           }))
           .filter(
             (province) =>
-              province.children?.length ||
+              province.children ||
               province.territory
                 .toLowerCase()
                 .includes(searchQuery.toLowerCase())
@@ -138,7 +140,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
       }))
       .filter(
         (territory) =>
-          territory.children?.length ||
+          territory.children ||
           territory.territory.toLowerCase().includes(searchQuery.toLowerCase())
       );
   };
@@ -211,7 +213,13 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                 {filterTerritories(augmentedTerritories).map((territory) => (
                   <div key={territory.id} className="territory-item">
                     <div className="territory-header">
-                      <div style={{ display: "flex", alignItems: "center" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          width: "100%",
+                        }}
+                      >
                         <input
                           type="checkbox"
                           id={`checkbox-${territory.id}`}
