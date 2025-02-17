@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./TerritoryPicker.css";
 import axios from "axios";
+import { augmentTerritoryData } from "../utils/utils";
 
 interface Territory {
   id: string;
@@ -13,18 +14,21 @@ interface TerritoryPickerProps {
   territories: Territory[];
 }
 
+/*
 const augmentTerritoryData = (
   territories: Territory[],
   currentLevel = 1
 ): Territory[] => {
   return territories.map((territory) => ({
     ...territory,
-    level: currentLevel,
-    children: territory.children
-      ? augmentTerritoryData(territory.children, currentLevel + 1)
-      : [],
+    level: currentLevel, // Tetapkan level untuk debugging
+    children:
+      Array.isArray(territory.children) && territory.children.length > 0
+        ? augmentTerritoryData(territory.children, currentLevel + 1) // Rekursi tanpa batas level
+        : [], // Set array kosong jika tidak ada children untuk menghindari undefined
   }));
 };
+*/
 
 export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
   territories,
@@ -43,39 +47,53 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
 
   // Fetch data for Source B
   useEffect(() => {
-    if (activeSource === "B" && externalTerritories.length === 0) {
-      axios
-        .get(
-          "https://dev.braincodetech.id/inap/api/availability-dashboard/bc_territory2?end_date=20240930"
-        )
-        .then((response) => {
-          console.log("API Response:", response.data); // cek isi response
+    if (activeSource === "B") {
+      if (externalTerritories.length === 0) {
+        axios
+          .get(
+            "https://dev.braincodetech.id/inap/api/availability-dashboard/bc_territory2?end_date=20240930"
+          )
+          .then((response) => {
+            console.log("API Response (Raw):", response.data);
 
-          if (response.data && Array.isArray(response.data.tsel)) {
-            const fetchedTerritories = augmentTerritoryData(response.data.tsel);
-            /*
-            const fetchedTerritories = response.data.tsel.map((item: any) => ({
-              id: item.id || "",
-              territory: item.territory || "",
-              children: item.children
-                ? augmentTerritoryData(item.children)
-                : undefined,
-            }));
-            */
+            if (response.data && Array.isArray(response.data.tsel)) {
+              const fetchedTerritories = response.data.tsel[0]?.children || [];
 
-            setExternalTerritories(fetchedTerritories);
-            setAugmentedTerritories(augmentTerritoryData(fetchedTerritories));
-          } else {
-            console.warn("Unexpected response structure:", response.data);
-          }
-        })
-        .catch((error) => {
-          console.error("Failed to fetch external territories", error);
-        });
+              console.log(
+                "Fetched Territories (before augment):",
+                fetchedTerritories
+              );
+
+              const processedTerritories =
+                augmentTerritoryData(fetchedTerritories);
+
+              console.log(
+                "Processed Territories (after augment):",
+                processedTerritories
+              );
+
+              setExternalTerritories(processedTerritories);
+              setAugmentedTerritories(processedTerritories);
+            } else {
+              console.warn("Unexpected response structure:", response.data);
+            }
+          })
+          .catch((error) => {
+            console.error("Failed to fetch external territories", error);
+          });
+      } else {
+        setAugmentedTerritories(externalTerritories);
+      }
     } else {
       setAugmentedTerritories(augmentTerritoryData(territories));
     }
-  }, [activeSource, territories /*externalTerritories.length*/]);
+  }, [activeSource, territories, externalTerritories]);
+
+  // Reset selectedTerritories dan expanded state saat berpindah source
+  useEffect(() => {
+    setSelectedTerritories([]); // Reset checkbox selection
+    setExpanded({}); // Reset expand state agar tertutup kembali
+  }, [activeSource]);
 
   const getLevel = (territory: Territory | undefined): number => {
     return territory?.level || 1;
@@ -175,6 +193,46 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
     }
   };
 
+  const renderTerritories = (territories: Territory[], level = 1) => {
+    return territories.map((territory) => (
+      <div key={territory.id} className="territory-item">
+        <div className="territory-header">
+          <input
+            type="checkbox"
+            id={`checkbox-${territory.id}`}
+            checked={selectedTerritories.includes(territory.id)}
+            onChange={() => toggleSelect(territory.id)}
+          />
+          <label
+            htmlFor={`checkbox-${territory.id}`}
+            className="territory-label"
+          >
+            {territory.territory}
+          </label>
+          {territory.children && territory.children.length > 0 && (
+            <span
+              className="expand-icon"
+              onClick={() => toggleExpand(territory.id)}
+            >
+              {expanded[territory.id] ? "▲" : "▼"}
+            </span>
+          )}
+        </div>
+
+        {territory.children &&
+          territory.children.length > 0 &&
+          expanded[territory.id] && (
+            <div
+              className="territory-sublist"
+              style={{ paddingLeft: `${level * 10}px` }} // Indentasi berdasarkan level
+            >
+              {renderTerritories(territory.children, level + 1)}
+            </div>
+          )}
+      </div>
+    ));
+  };
+
   return (
     <>
       <div className="territory-picker">
@@ -199,7 +257,6 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                   Source B
                 </button>
               </div>
-
               <div className="search-bar">
                 <input
                   type="text"
@@ -208,7 +265,11 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+              <div className="territory-list">
+                {renderTerritories(filterTerritories(augmentedTerritories))}
+              </div>
 
+              {/*
               <div className="territory-list">
                 {filterTerritories(augmentedTerritories).map((territory) => (
                   <div key={territory.id} className="territory-item">
@@ -303,6 +364,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                   </div>
                 ))}
               </div>
+              */}
             </div>
           </div>
         )}

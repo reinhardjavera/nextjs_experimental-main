@@ -1,5 +1,6 @@
 import { Meta, StoryObj } from "@storybook/react";
 import { TerritoryPicker } from "./TerritoryPicker";
+import { augmentTerritoryData } from "../utils/utils";
 
 const meta: Meta<typeof TerritoryPicker> = {
   title: "Example/TerritoryPicker",
@@ -13,18 +14,21 @@ const meta: Meta<typeof TerritoryPicker> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/*
 const augmentTerritoryData = (
   territories: any[],
   currentLevel: number = 1
 ): any[] => {
-  territories.forEach((territory) => {
-    territory.level = currentLevel; // Tambah level ke setiap node
-    if (territory.children) {
-      augmentTerritoryData(territory.children, currentLevel + 1);
-    }
-  });
-  return territories;
+  return territories.map((territory) => ({
+    ...territory,
+    level: currentLevel, // Set level saat ini
+    children:
+      Array.isArray(territory.children) && territory.children.length > 0
+        ? augmentTerritoryData(territory.children, currentLevel + 1) // Rekursi tanpa batas level
+        : [], // Set array kosong jika tidak ada children
+  }));
 };
+*/
 
 // Data provinsi & kota dipindah ke story
 const territoryData = [
@@ -75,6 +79,6 @@ const territoryData = [
 
 export const Default: Story = {
   args: {
-    territories: territoryData,
+    territories: augmentTerritoryData(territoryData), // Gunakan fungsi yang sudah diperbaiki
   },
 };
