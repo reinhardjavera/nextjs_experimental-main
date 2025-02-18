@@ -50,7 +50,10 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
     if (activeSource === "B") {
       if (externalTerritories.length === 0) {
         axios
-          .get("http://192.168.68.53:5000/api/territory_data")
+          //.get("http://192.168.68.53:5000/api/territory_data")
+          .get(
+            "https://dev.braincodetech.id/inap/api/availability-dashboard/bc_territory2?end_date=20240930"
+          )
           .then((response) => {
             console.log("API Response (Raw):", response.data);
 
