@@ -169,3 +169,21 @@
   border-left: 2px solid #ddd;
   margin-top: 5px;
 }
+
+.expand-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.2s;
+  width: 35%;
+  margin: 10px 0;
+}
+
+.expand-button:hover {
+  background-color: #0056b3;
+}

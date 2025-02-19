@@ -35,6 +35,8 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
 }) => {
   const [selectedTerritories, setSelectedTerritories] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const [activeSource, setActiveSource] = useState<"A" | "B">("A");
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -90,6 +92,23 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
     }
   }, [activeSource, territories, externalTerritories]);
 
+  useEffect(() => {
+    let initialExpandedState: { [key: string]: boolean } = {};
+
+    const traverseAndExpand = (territories: Territory[]) => {
+      for (const territory of territories) {
+        initialExpandedState[territory.id] = true; // Set all expanded
+        if (territory.children) {
+          traverseAndExpand(territory.children);
+        }
+      }
+    };
+
+    traverseAndExpand(augmentedTerritories);
+    setExpanded(initialExpandedState);
+    setIsExpanded(false);
+  }, [augmentedTerritories]);
+
   // Reset selectedTerritories dan expanded state saat berpindah source
   useEffect(() => {
     setSelectedTerritories([]); // Reset checkbox selection
@@ -135,6 +154,21 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
 
   const toggleExpand = (id: string) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleExpandAll = () => {
+    const allExpanded = Object.values(expanded).every((state) => state);
+    let newExpandedState: { [key: string]: boolean } = {};
+    const traverseAndSet = (territories: Territory[]) => {
+      for (const territory of territories) {
+        newExpandedState[territory.id] = !allExpanded;
+        if (territory.children) {
+          traverseAndSet(territory.children);
+        }
+      }
+    };
+    traverseAndSet(augmentedTerritories);
+    setExpanded(newExpandedState);
   };
 
   const filterTerritories = (territories: Territory[]): Territory[] => {
@@ -225,7 +259,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
           expanded[territory.id] && (
             <div
               className="territory-sublist"
-              style={{ paddingLeft: `${level * 10}px` }} // Indentasi berdasarkan level
+              style={{ paddingLeft: `${level * 10}px` }}
             >
               {renderTerritories(territory.children, level + 1)}
             </div>
@@ -258,6 +292,11 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                   Source B
                 </button>
               </div>
+              <button onClick={toggleExpandAll} className="expand-button">
+                {Object.values(expanded).every((state) => state)
+                  ? "Collapse All"
+                  : "Expand All"}
+              </button>
               <div className="search-bar">
                 <input
                   type="text"
@@ -266,6 +305,7 @@ export const TerritoryPicker: React.FC<TerritoryPickerProps> = ({
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+
               <div className="territory-list">
                 {renderTerritories(filterTerritories(augmentedTerritories))}
               </div>

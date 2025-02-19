@@ -16,6 +16,6 @@ export const augmentTerritoryData = (
     children:
       Array.isArray(territory.children) && territory.children.length > 0
         ? augmentTerritoryData(territory.children, currentLevel + 1)
-        : undefined, // Gunakan `undefined` bukan `[]` agar tidak menghapus struktur
+        : undefined, // undefined agar tidak menghapus struktur
   }));
 };
